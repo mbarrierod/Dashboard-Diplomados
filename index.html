@@ -182,7 +182,7 @@ h+='<div class="g2">'+ch(R,'Meta, logrado y % de alcance vs meta',1,2,'Meta','Lo
 $("avc").innerHTML=h;$("avs").textContent="Datos del Sheet «Avance diplomados»"}
 function loadAv(a){ra(a.filter(function(r){return r[0]&&r[0].trim()&&!isNaN(parseFloat(r[1]))}).map(function(r){return[r[0].trim(),+r[1]||0,+r[2]||0,r[3],+r[4]||0,+r[5]||0,r[6],+r[7]||0]}))}
 
-/* ===== Conexión en vivo con Google Sheets (no necesitas tocar esto) ===== */
+/* ===== Conexión en vivo con Google Sheets - (no necesitas tocar esto) ===== */
 function gurl(l){l=(l||"").trim();if(!l)return"";
  if(/\/pub/.test(l)&&/output=csv/.test(l))return l+"&_="+Date.now();
  var m=l.match(/\/spreadsheets\/d\/([a-zA-Z0-9_-]+)/),g=l.match(/[#&?]gid=(\d+)/);if(!m)return"";
