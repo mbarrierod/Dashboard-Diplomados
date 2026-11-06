@@ -206,4 +206,6 @@ function live(){var any=0,pend=0,ok=[],fail=[];
    (fail.length?" · ⚠ No se pudo leer: "+fail.join(", ")+". Revisa que el Sheet esté compartido como «Cualquier persona con el enlace – Lector».":"")})});
  if(!any)$("live").textContent="Sin links configurados: pega los links en LINKS (inicio del script)."}
 $("rf").onclick=live;live();setInterval(live,REFRESH_SEG*1000);
-</script></body></html>
+</script>
+</body>
+</html>
