@@ -30,7 +30,7 @@ label.ck{display:flex;gap:8px;align-items:flex-start;margin:6px 0}
 </style></head><body><main>
 <h1>📊 Dashboard Diplomados</h1>
 <div class="sub" id="st">Fuente: Google Sheet «Educación Continua»</div>
-<nav id="nav"><button data-t="mon" class="on">Monitoreo</button><button data-t="cua">Cuartiles</button><button data-t="plan">Plan de acción</button><button data-t="cro">Cronograma</button><button data-t="av">Avance diplomados</button></nav>
+<nav id="nav"><button data-t="mon" class="on">Monitoreo</button><button data-t="cua">Cuartiles</button><button data-t="cro">Cronograma</button><button data-t="av">Avance diplomados</button><button data-t="le">Leads por día</button></nav>
 
 <section id="mon">
 <div class="card" style="margin-bottom:12px"><h3>Datos en vivo</h3>
@@ -45,23 +45,6 @@ label.ck{display:flex;gap:8px;align-items:flex-start;margin:6px 0}
 
 <section id="cua" class="hide"><div class="card"><h2>Cuartiles semanales</h2><div class="sub" id="cqs"></div><div class="sub">Q4 = mejor alcance de la semana; Q1 = menor alcance. Se actualiza solo desde el Sheet.</div></div><div id="cq"></div></section>
 
-<section id="plan" class="hide">
-<div class="g2">
-<div class="card"><h2>1. Evaluar supervisores (propuesta de scorecard)</h2><div class="tw"><table>
-<tr><th>Dimensión</th><th>Peso</th><th>Indicadores</th><th>Pestaña fuente</th></tr>
-<tr><td>Calidad del coaching</td><td>30%</td><td>Monitoreos/semana, % con feedback inmediato, re-monitoreo para validar mejora</td><td>Monitoreos</td></tr>
-<tr><td>Resultado del equipo</td><td>30%</td><td>Movimiento de cuartiles, % asesores Q3–Q4, conversión</td><td>Cuartiles</td></tr>
-<tr><td>Disciplina operativa</td><td>20%</td><td>Retardos del equipo, cumplimiento de actividades diarias</td><td>Retardos, Actividades diarias Super</td></tr>
-<tr><td>Productividad</td><td>20%</td><td>Contactos, ventas y seguimiento por asesor</td><td>Productividad</td></tr></table></div>
-<div class="sub" style="margin-top:6px">Los pesos son una propuesta para ajustar contigo y Gerencia Comercial.</div></div>
-<div class="card"><h2>2. Perfil del equipo de alto rendimiento</h2><ul>
-<li>Asesores en Q3–Q4 durante 4 semanas seguidas</li>
-<li>Presenta ambas opciones de costo y explica diferencias</li>
-<li>Sondea necesidades antes de hablar de precio</li>
-<li>Solicita referidos con beneficio y ofrece el aula virtual con docente</li>
-<li>Piloto de 8–10 asesores con supervisor mejor evaluado y ritual semanal de role play</li></ul></div></div>
-<div class="card" style="margin-top:12px"><h2>3. Próximos pasos (marca avance)</h2><div id="steps"></div></div>
-</section>
 <section id="cro" class="hide">
 <div class="card"><h2>Cronograma de acciones por supervisoras y agentes</h2><div class="sub">8 pasos desde el 2 de nov de 2026. Marca el avance; se guarda en tu navegador.</div><div class="tw" id="crt" style="margin-top:8px"></div></div>
 <div class="card" style="margin-top:12px"><h2>Acciones por grupo de cuartil (Q4 = mejor)</h2><div class="tw"><table><tr><th>Grupo</th><th>Agentes</th><th>Supervisora</th><th>Frecuencia</th></tr>
@@ -70,6 +53,7 @@ label.ck{display:flex;gap:8px;align-items:flex-start;margin:6px 0}
 <tr><td>Q2</td><td>Sondeo y manejo de «necesito pensarlo»</td><td>1:1 semanal y escucha de llamadas</td><td>Monitoreo semanal</td></tr>
 <tr><td>Q1</td><td>Plan de mejora de 30 días con metas diarias</td><td>1:1 dos veces por semana y re-monitoreo a 7 días</td><td>Monitoreo semanal</td></tr></table></div></div></section>
 <section id="av" class="hide"><div class="card"><h2>Avance diplomados</h2><div class="sub" id="avs"></div><div class="sub">Se actualiza solo desde el Sheet.</div></div><div id="avc"></div></section>
+<section id="le" class="hide"><div class="card"><h2>Leads por día</h2><div class="sub" id="les"></div><div class="sub">Se actualiza solo desde el Sheet.</div></div><div id="lec"></div></section>
 <div class="sub" style="margin:14px 0">Solo lectura: este tablero no modifica el Sheet.</div>
 </main>
 <script>
@@ -82,7 +66,8 @@ label.ck{display:flex;gap:8px;align-items:flex-start;margin:6px 0}
 var LINKS={
  monitoreos:"https://docs.google.com/spreadsheets/d/11QhXka1mva9GKuPwrDr1yd3dzybFIxsRLiO4NQrP-mU/edit?gid=0#gid=0",   // link de la pestaña Monitoreos
  cuartiles:"https://docs.google.com/spreadsheets/d/11QhXka1mva9GKuPwrDr1yd3dzybFIxsRLiO4NQrP-mU/edit?gid=1809066707#gid=1809066707",    // link de la pestaña Cuartiles
- avance:"https://docs.google.com/spreadsheets/d/11QhXka1mva9GKuPwrDr1yd3dzybFIxsRLiO4NQrP-mU/edit?gid=372437164#gid=372437164"        // link de la pestaña Avance diplomados
+ avance:"https://docs.google.com/spreadsheets/d/11QhXka1mva9GKuPwrDr1yd3dzybFIxsRLiO4NQrP-mU/edit?gid=372437164#gid=372437164",   // link de la pestaña Avance diplomados
+ leads:"https://docs.google.com/spreadsheets/d/11QhXka1mva9GKuPwrDr1yd3dzybFIxsRLiO4NQrP-mU/edit?gid=768130767#gid=768130767"   // link de la pestaña Leads por día
 };
 var REFRESH_SEG=60; // cada cuántos segundos se actualiza solo
 /* ============================================================== */
@@ -154,11 +139,7 @@ var S=A.slice().sort(function(a,b){return a.w[L][3]-b.w[L][3]||a.w[L][2]-b.w[L][
 h+='<div class="card" style="margin-top:12px"><h2>Análisis por agente (prioridad primero)</h2><div class="tw"><table><tr><th>Agente</th><th>Supervisor</th><th>LAP</th><th>Meta bono</th><th>Ventas</th><th>Alcance</th><th>Trayectoria</th><th>Tendencia</th><th>Acción</th></tr>'+S.map(function(x){var l=x.w[L],p=V>=0?x.w[V]:null;return'<tr><td>'+x.n+'</td><td>'+x.s+'</td><td>'+x.p+'</td><td>'+x.b+'</td><td>'+l[1]+'</td><td>'+l[2]+'%</td><td>'+x.w.map(function(z){return z[3]?"Q"+z[3]:"–"}).join(" → ")+'</td><td>'+(!p?"–":l[3]>p[3]?"▲ Sube":l[3]<p[3]?"▼ Baja":"= Igual")+'</td><td>'+(l[1]?AC[Math.max(l[3],1)-1]:"Prioridad: revisar contactabilidad, guion y monitoreo inmediato")+'</td></tr>'}).join("")+'</table></div></div>';
 $("cq").innerHTML=h;$("cqs").textContent="Datos de "+A.length+" agentes · "+W.map(function(w){return w.l}).join(", ")}
 function loadCua(a){rq(pq(a))}
-var ST=["Semana 1: validar con Gerencia Comercial el scorecard y los pesos","Semana 1: definir meta mínima de monitoreos por supervisora","Semana 2: línea base de cada supervisora con las 4 dimensiones","Semana 2–3: calibración conjunta de monitoreos (misma llamada, dos evaluadoras)","Semana 3: seleccionar piloto de 8–10 asesores de alto rendimiento","Semana 4: arrancar ritual semanal de role play y revisión de cuartiles","Día 30: primera revisión de resultados y ajuste de plan","Día 60: decidir ampliar el equipo y reconocer a la mejor supervisora"];
-var sv={};try{sv=JSON.parse(localStorage.getItem("stp")||"{}")}catch(e){}
-$("steps").innerHTML=ST.map(function(s,i){return'<label class="ck"><input type="checkbox" data-i="'+i+'"'+(sv[i]?" checked":"")+'> '+s+'</label>'}).join("");
-$("steps").onchange=function(e){sv[e.target.dataset.i]=e.target.checked;try{localStorage.setItem("stp",JSON.stringify(sv))}catch(x){}};
-$("nav").onclick=function(e){var t=e.target.dataset.t;if(!t)return;["mon","cua","plan","cro","av"].forEach(function(i){$(i).classList.toggle("hide",i!=t)});[].forEach.call($("nav").children,function(b){b.classList.toggle("on",b.dataset.t==t)})};
+$("nav").onclick=function(e){var t=e.target.dataset.t;if(!t)return;["mon","cua","cro","av","le"].forEach(function(i){$(i).classList.toggle("hide",i!=t)});[].forEach.call($("nav").children,function(b){b.classList.toggle("on",b.dataset.t==t)})};
 var CR=[["1","2–6 nov","Validar scorecard con Gerencia Comercial; fijar meta de monitoreos por agente","Conocer el estándar: sondeo, dos opciones de costo, referidos y aula","Línea base por agente (cuartil y monitoreo)"],
 ["2","9–13 nov","Calibración conjunta de monitoreos (misma llamada, dos evaluadoras)","Q1 inician plan de mejora; role play de sondeo","Plan individual para Q1 y Q2"],
 ["3","16–20 nov","1:1 con cada agente Q1–Q2; monitoreo semanal a Q1","Role play de «necesito pensarlo» y comparación con otras instituciones","Re-monitoreo a 7 días"],
@@ -182,12 +163,39 @@ h+='<div class="g2">'+ch(R,'Meta, logrado y % de alcance vs meta',1,2,'Meta','Lo
 $("avc").innerHTML=h;$("avs").textContent="Datos del Sheet «Avance diplomados»"}
 function loadAv(a){ra(a.filter(function(r){return r[0]&&r[0].trim()&&!isNaN(parseFloat(r[1]))}).map(function(r){return[r[0].trim(),+r[1]||0,+r[2]||0,r[3],+r[4]||0,+r[5]||0,r[6],+r[7]||0]}))}
 
+
+/* ===== Leads por día ===== */
+function nn(x){x=String(x==null?"":x).replace(/[^0-9.\-]/g,"");return x===""||x=="-"?null:parseFloat(x)}
+function fm(x){return Number(x).toLocaleString("es-MX")}
+function loadLe(a){var D=[],S=null;
+ a.forEach(function(r,i){var f=(r[0]||"").trim();if(/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(f))D.push({f:f,r:nn(r[1]),m:nn(r[2])||0});
+  var c=r.findIndex(function(x){return(x||"").trim().toUpperCase()=="NIVEL"});
+  if(c>-1&&a[i+1]&&nn(a[i+1][c+1])!=null)S={n:a[i+1][c],r:nn(a[i+1][c+1]),m:nn(a[i+1][c+2]),p:a[i+1][c+3],g:nn(a[i+1][c+4])}});
+ rl(D,S)}
+function lsvg(D,t,leg,body,mx,note){var n=D.length,gw=740/n,s='<svg viewBox="0 0 780 300" width="100%" style="min-width:640px" role="img" aria-label="'+t+'">'+leg+'<line x1="20" y1="250" x2="770" y2="250" style="stroke:var(--ln)"/>';
+ D.forEach(function(d,i){s+='<text x="'+(20+i*gw+gw/2)+'" y="266" font-size="9" text-anchor="middle" style="fill:var(--mu)">'+d.f.slice(0,2)+'</text>'});
+ return'<div class="card" style="margin-top:12px"><h3>'+t+'</h3><div class="tw">'+s+body(gw,mx)+'</svg></div><div class="sub">'+note+'</div></div>'}
+function rl(D,S){if(!D.length){$("lec").innerHTML='<div class="card">No pude leer la pestaña Leads por día.</div>';return}
+ var C=D.filter(function(d){return d.r!=null}),tr=0,tm=0,cm=0;D.forEach(function(d){tm+=d.m});C.forEach(function(d){tr+=d.r;cm+=d.m});
+ var R=S&&S.r!=null?S.r:tr,Mt=S&&S.m!=null?S.m:tm,pc=S&&S.p?S.p:pct(tr,tm)+"%",gp=S&&S.g!=null?S.g:tr-tm,last=C.length?C[C.length-1].f:"–",rem=D.length-C.length,avg=C.length?tr/C.length:0,proj=Math.round(tr+avg*rem),need=rem?Math.round((Mt-R)/rem):0;
+ var kc=function(v,l,c){return'<div class="card"><div class="k"'+(c?' style="color:'+c+'"':'')+'>'+v+'</div><div class="kl">'+l+'</div></div>'};
+ var h='<h3 style="margin:14px 0 6px">Resumen del Sheet · '+(S&&S.n?S.n:"Educación Continua")+'</h3><div class="grid">'+kc(fm(R),"REAL LEADS")+kc(fm(Mt),"META LEADS (mes completo)")+kc(pc,"% LEADS CONV")+kc(fm(gp),"REAL − META (vs mes completo)",gp<0?"var(--ba)":"var(--ok)")+'</div>';
+ h+='<h3 style="margin:14px 0 6px">A la fecha ('+last+')</h3><div class="grid">'+kc(fm(tr),"Real acumulado")+kc(fm(cm),"Meta acumulada a la fecha")+kc(pct(tr,cm)+"%","% vs meta a la fecha")+kc((tr-cm>0?"+":"")+fm(tr-cm),"Real − meta a la fecha",tr-cm<0?"var(--ba)":"var(--ok)")+kc(fm(proj)+" ("+pct(proj,Mt)+"%)","Proyección al ritmo actual")+'</div>';
+ var mx=Math.max.apply(null,D.map(function(d){return Math.max(d.r||0,d.m)}))*1.12||1;
+ h+=lsvg(D,"Leads por día: real vs meta",'<rect x="20" y="4" width="10" height="10" style="fill:var(--ac)"/><text x="34" y="13" font-size="11" style="fill:var(--tx)">Real</text><line x1="90" y1="9" x2="110" y2="9" stroke="#94a3b8" stroke-width="2"/><text x="114" y="13" font-size="11" style="fill:var(--tx)">Meta</text>',function(gw){var b="",p=[];D.forEach(function(d,i){var cx=20+i*gw+gw/2,y=250-d.m/mx*210;p.push(cx+","+y);if(d.r!=null){var hh=d.r/mx*210;b+='<rect x="'+(cx-gw*0.35)+'" y="'+(250-hh)+'" width="'+gw*0.7+'" height="'+hh+'" rx="2" style="fill:var(--ac)"/><text x="'+cx+'" y="'+(244-hh)+'" font-size="10" text-anchor="middle" style="fill:var(--tx)">'+d.r+'</text>'}});return b+'<polyline fill="none" stroke="#94a3b8" stroke-width="2" points="'+p.join(" ")+'"/>'},mx,"La línea gris es la meta diaria; las barras son los leads reales.");
+ var pm=Math.max(150,Math.max.apply(null,C.map(function(d){return 100*d.r/d.m}))*1.1||150);
+ h+=lsvg(D,"% LEADS por día vs meta",'<line x1="20" y1="9" x2="40" y2="9" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="4"/><text x="44" y="13" font-size="11" style="fill:var(--tx)">100% de la meta</text>',function(gw){var b='<line x1="20" x2="770" y1="'+(250-100/pm*210)+'" y2="'+(250-100/pm*210)+'" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="4"/>';D.forEach(function(d,i){if(d.r==null)return;var v=Math.round(100*d.r/d.m),hh=v/pm*210,cx=20+i*gw+gw/2;b+='<rect x="'+(cx-gw*0.35)+'" y="'+(250-hh)+'" width="'+gw*0.7+'" height="'+hh+'" rx="2" style="fill:'+(v>=100?"var(--ok)":"var(--wa)")+'"/><text x="'+cx+'" y="'+(244-hh)+'" font-size="10" text-anchor="middle" style="fill:var(--tx)">'+v+'%</text>'});return b},pm,"Verde: cumple o supera la meta del día; naranja: por debajo.");
+ var ab=C.filter(function(d){return d.r>=d.m}).length,best=C.slice().sort(function(x,y){return y.r/y.m-x.r/x.m})[0],low=C.slice().sort(function(x,y){return x.r/x.m-y.r/y.m})[0];
+ h+='<div class="card" style="margin-top:12px"><h2>🔎 Hallazgos</h2><ul>'+(C.length?'<li><b>'+ab+'</b> de '+C.length+' días con datos cumplen o superan la meta diaria; el mejor fue '+best.f+' ('+pct(best.r,best.m)+'%) y el más bajo '+low.f+' ('+pct(low.r,low.m)+'%).</li><li>A la fecha van <b>'+pct(tr,cm)+'%</b> de la meta acumulada ('+(tr-cm>0?"+":"")+fm(tr-cm)+' leads), aunque el Sheet muestra '+pc+' porque divide entre la meta de todo el mes.</li>':'')+(rem?'<li>Para cerrar el mes en '+fm(Mt)+' necesitan <b>'+fm(need)+'</b> leads por día en los '+rem+' días restantes; el promedio actual es <b>'+Math.round(avg)+'</b>.</li>':'')+'</ul></div>';
+ h+='<div class="card" style="margin-top:12px"><h2>Detalle diario</h2><div class="tw"><table><tr><th>Fecha</th><th>REAL LEADS</th><th>META LEADS</th><th>% LEADS</th><th>REAL − META</th></tr>'+D.map(function(d){var has=d.r!=null,df=has?d.r-d.m:null;return'<tr><td>'+d.f+'</td><td>'+(has?d.r:"—")+'</td><td>'+d.m+'</td><td>'+(has?pct(d.r,d.m)+"%":"—")+'</td><td'+(has?' style="color:'+(df<0?"var(--ba)":"var(--ok)")+'"':'')+'>'+(has?(df>0?"+":"")+df:"—")+'</td></tr>'}).join("")+'</table></div></div>';
+ $("lec").innerHTML=h;$("les").textContent="Datos del Sheet «Leads por día» · último día con datos: "+last}
+
 /* ===== Conexión en vivo con Google Sheets - (no necesitas tocar esto) ===== */
 function gurl(l){l=(l||"").trim();if(!l)return"";
  if(/\/pub/.test(l)&&/output=csv/.test(l))return l+"&_="+Date.now();
  var m=l.match(/\/spreadsheets\/d\/([a-zA-Z0-9_-]+)/),g=l.match(/[#&?]gid=(\d+)/);if(!m)return"";
  return"https://docs.google.com/spreadsheets/d/"+m[1]+"/gviz/tq?tqx=out:csv&headers=0"+(g?"&gid="+g[1]:"")+"&_="+Date.now()}
-var LOAD={monitoreos:loadMon,cuartiles:loadCua,avance:loadAv};
+var LOAD={monitoreos:loadMon,cuartiles:loadCua,avance:loadAv,leads:loadLe};
 function live(){var any=0,pend=0,ok=[],fail=[];
  Object.keys(LINKS).forEach(function(k){var u=gurl(LINKS[k]);if(!u)return;any++;pend++;
   fetch(u).then(function(r){if(!r.ok)throw 0;return r.text()})
