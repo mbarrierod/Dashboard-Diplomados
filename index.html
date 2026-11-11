@@ -216,7 +216,7 @@ $("mof").onclick=function(e){var m=e.target.dataset.m;if(m){MONF=m;monShow()}};
 var PR_META=60,PR_ROJO=30,PR_BIEN=40,PR_TOP=50,PRD=null,PRF="Todos",RTD=null,RTF="Todos";
 function kc(v,l,c){return'<div class="card"><div class="k"'+(c?' style="color:'+c+'"':'')+'>'+v+'</div><div class="kl">'+l+'</div></div>'}
 function tcase(s){return(s||"").toLowerCase().replace(/(^|\s)\S/g,function(m){return m.toUpperCase()})}
-function p1(x){return x==null?"–":(Math.round(x*10)/10)+"%"}
+function p1(x){return (x==null || isNaN(x) || !isFinite(x)) ? "0%" : (Math.round(x*10)/10)+"%"}
 function sg(x){return(x>=0?"+":"")+Math.round(x*10)/10}
 function hb(it,f,mx){mx=mx||Math.max.apply(null,it.map(function(i){return i[1]}))||1;return it.map(function(i){return'<div class="row" style="grid-template-columns:190px 1fr 56px"><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="'+i[0]+'">'+i[0]+'</span><div class="bar"><i style="width:'+Math.min(100,100*i[1]/mx)+'%;background:'+(i[2]||"var(--ac)")+'"></i></div><b>'+f(i[1])+'</b></div>'}).join("")}
 function seg(o,c,k){return'<div style="display:flex;gap:6px;margin:12px 0;flex-wrap:wrap">'+o.map(function(x){return'<button class="btn" data-'+k+'="'+x+'"'+(x==c?' style="background:var(--ac);color:#fff;border-color:var(--ac)"':'')+'>'+x+'</button>'}).join("")+'</div>'}
