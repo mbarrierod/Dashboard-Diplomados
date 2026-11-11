@@ -30,7 +30,7 @@ label.ck{display:flex;gap:8px;align-items:flex-start;margin:6px 0}
 </style></head><body><main>
 <h1>📊 Dashboard Diplomados</h1>
 <div class="sub" id="st">Fuente: Google Sheet «Educación Continua»</div>
-<nav id="nav"><button data-t="mon" class="on">Monitoreo</button><button data-t="cua">Cuartiles</button><button data-t="cro">Cronograma</button><button data-t="av">Avance diplomados</button><button data-t="le">Leads por día</button><button data-t="pr">Productividad</button><button data-t="rt">Retardos</button></nav>
+<nav id="nav"><button data-t="mon" class="on">Monitoreo</button><button data-t="cua">Cuartiles</button><button data-t="cro">Cronograma</button><button data-t="av">Avance diplomados</button><button data-t="le">Leads por día</button><button data-t="pr">Productividad</button><button data-t="rt">Retardos</button><button data-t="rs">Resumen Retardos</button></nav>
 
 <section id="mon">
 <div class="card" style="margin-bottom:12px"><h3>Datos en vivo</h3>
@@ -57,6 +57,7 @@ label.ck{display:flex;gap:8px;align-items:flex-start;margin:6px 0}
 <section id="le" class="hide"><div class="card"><h2>Leads por día</h2><div class="sub" id="les"></div><div class="sub">Se actualiza solo desde el Sheet.</div></div><div id="lec"></div></section>
 <section id="pr" class="hide"><div class="card"><h2>Productividad</h2><div class="sub" id="prs">Se actualiza solo desde el Sheet.</div></div><div id="prc"></div></section>
 <section id="rt" class="hide"><div class="card"><h2>Retardos</h2><div class="sub" id="rts">Se actualiza solo desde el Sheet.</div></div><div id="rtc"><div class="card" style="margin-top:12px">Cargando…</div></div></section>
+<section id="rs" class="hide"><div class="card"><h2>Resumen Retardos</h2><div class="sub" id="rss">Se actualiza solo desde el Sheet.</div></div><div id="rsc"><div class="card" style="margin-top:12px">Cargando…</div></div></section>
 <div class="sub" style="margin:14px 0">Solo lectura: este tablero no modifica el Sheet.</div>
 </main>
 <script>
@@ -144,7 +145,7 @@ var S=A.slice().sort(function(a,b){return a.w[L][3]-b.w[L][3]||a.w[L][2]-b.w[L][
 h+='<div class="card" style="margin-top:12px"><h2>Análisis por agente (prioridad primero)</h2><div class="tw"><table><tr><th>Agente</th><th>Supervisor</th><th>LAP</th><th>Meta bono</th><th>Ventas</th><th>Alcance</th><th>Trayectoria</th><th>Tendencia</th><th>Acción</th></tr>'+S.map(function(x){var l=x.w[L],p=V>=0?x.w[V]:null;return'<tr><td>'+x.n+'</td><td>'+x.s+'</td><td>'+x.p+'</td><td>'+x.b+'</td><td>'+l[1]+'</td><td>'+l[2]+'%</td><td>'+x.w.map(function(z){return z[3]?"Q"+z[3]:"–"}).join(" → ")+'</td><td>'+(!p?"–":l[3]>p[3]?"▲ Sube":l[3]<p[3]?"▼ Baja":"= Igual")+'</td><td>'+(l[1]?AC[Math.max(l[3],1)-1]:"Prioridad: revisar contactabilidad, guion y monitoreo inmediato")+'</td></tr>'}).join("")+'</table></div></div>';
 $("cq").innerHTML=h;$("cqs").textContent="Datos de "+A.length+" agentes · "+W.map(function(w){return w.l}).join(", ")}
 function loadCua(a){rq(pq(a))}
-$("nav").onclick=function(e){var t=e.target.dataset.t;if(!t)return;["mon","cua","cro","av","le","pr","rt"].forEach(function(i){$(i).classList.toggle("hide",i!=t)});[].forEach.call($("nav").children,function(b){b.classList.toggle("on",b.dataset.t==t)})};
+$("nav").onclick=function(e){var t=e.target.dataset.t;if(!t)return;["mon","cua","cro","av","le","pr","rt","rs"].forEach(function(i){$(i).classList.toggle("hide",i!=t)});[].forEach.call($("nav").children,function(b){b.classList.toggle("on",b.dataset.t==t)})};
 var CR=[["1","2–6 nov","Validar scorecard con Gerencia Comercial; fijar meta de monitoreos por agente","Conocer el estándar: sondeo, dos opciones de costo, referidos y aula","Línea base por agente (cuartil y monitoreo)"],
 ["2","9–13 nov","Calibración conjunta de monitoreos (misma llamada, dos evaluadoras)","Q1 inician plan de mejora; role play de sondeo","Plan individual para Q1 y Q2"],
 ["3","16–20 nov","1:1 con cada agente Q1–Q2; monitoreo semanal a Q1","Role play de «necesito pensarlo» y comparación con otras instituciones","Re-monitoreo a 7 días"],
@@ -263,12 +264,12 @@ $("prc").onclick=function(e){var f=e.target.dataset.f;if(f){PRF=f;rp()}};
 var SUPT={Vespertino:"Mayra Juárez",Matutino:"Janette Rico"};
 function turnoOf(s){s=s||"";return/juarez zaragoza|mayra dilery/i.test(s)?"Vespertino":/rico rodiles|janette/i.test(s)?"Matutino":""}
 function loadRt(a){var hi=-1;a.forEach(function(r,i){if(hi<0&&r.some(function(x){return(x||"").trim().toUpperCase()=="NOMBRE"}))hi=i});
- if(hi<0){RTD=null;rr();return}
- var h=a[hi].map(function(x){return(x||"").trim()}),nc=h.findIndex(function(x){return x.toUpperCase()=="NOMBRE"}),sc=h.findIndex(function(x){return/supervisor/i.test(x)}),ia=h.findIndex(function(x){return/a tiempo/i.test(x)}),ir=h.findIndex(function(x){return/^retardo/i.test(x)}),lc=h.indexOf("Retardo",ir+1),M=[],cur="",body=a.slice(hi+1);
+ if(hi<0){RTD=null;rr();rs();return}
+ var h=a[hi].map(function(x){return(x||"").trim()}),nc=h.findIndex(function(x){return x.toUpperCase()=="NOMBRE"}),sc=h.findIndex(function(x){return/supervisor/i.test(x)}),ia=h.findIndex(function(x){return/a tiempo/i.test(x)}),ir=h.findIndex(function(x){return/^retardo/i.test(x)}),M=[],cur="",body=a.slice(hi+1),lc=-1;body.some(function(r){var k=r.findIndex(function(x){return(x||"").trim().toLowerCase()=="a tiempo"});if(k>-1){lc=k;return true}});
  body.forEach(function(r){var g=(r[sc]||"").trim(),n=(r[nc]||"").trim();if(g&&!/^(total|suma)/i.test(g))cur=turnoOf(g)||cur;if(!n)return;var A=nn(r[ia])||0,Rt=nn(r[ir])||0;M.push({n:tcase(n),t:cur||"Sin turno",a:A,r:Rt,c:A+Rt})});
  var dc=[];h.forEach(function(x,i){if(lc>-1&&i>lc&&/^\d{4}-\d{2}-\d{2}|^\d{1,2}\/\d{1,2}/.test(x))dc.push(i)});
  var rv=function(l){var f=body.filter(function(r){return(r[lc]||"").trim().toLowerCase()==l})[0];return dc.map(function(i){return f?nn(f[i])||0:0})},DA=rv("a tiempo"),DR=rv("retardo");
- RTD={R:M,D:dc.map(function(i,k){var m=h[i].match(/^(\d{4})-(\d{2})-(\d{2})/);return{f:m?m[3]+"/"+m[2]:h[i].slice(0,5),a:DA[k],r:DR[k]}})};rr()}
+ RTD={R:M,D:dc.map(function(i,k){var m=h[i].match(/^(\d{4})-(\d{2})-(\d{2})/);return{f:m?m[3]+"/"+m[2]:h[i].slice(0,5),a:DA[k],r:DR[k]}})};rr();rs()}
 function rr(){var d=RTD;if(!d||!d.R.length){$("rtc").innerHTML='<div class="card" style="margin-top:12px">No pude leer la pestaña «Tabla Retardos». Revisa el link y que el Sheet esté compartido como lector.</div>';return}
  var R=d.R,D=d.D,TC={Vespertino:"#d97706",Matutino:"#4f46e5","Sin turno":"#94a3b8"},tot=function(L,k){return L.reduce(function(s,x){return s+x[k]},0)},TA=tot(R,"a"),TR=tot(R,"r"),TT=TA+TR,tk=["Vespertino","Matutino"].filter(function(t){return R.some(function(x){return x.t==t})}),by=function(t){var g=R.filter(function(x){return x.t==t});return{a:tot(g,"a"),r:tot(g,"r"),n:g.length}};
  var cr=R.filter(function(x){return x.r>0}).sort(function(a,b){return b.r-a.r}),re=cr.filter(function(x){return x.r>1});
@@ -292,6 +293,36 @@ function rr(){var d=RTD;if(!d||!d.R.length){$("rtc").innerHTML='<div class="card
  h+='<div class="card" style="margin-top:12px"><h2>🔎 Resumen para presentar</h2><ul><li>'+L.join('</li><li>')+'</li></ul></div>';
  $("rtc").innerHTML=h;$("rts").textContent="Datos del Sheet «Tabla Retardos» · "+R.length+" agentes · "+D.length+" días"}
 $("rtc").onclick=function(e){var f=e.target.dataset.r;if(f){RTF=f;rr()}};
+
+
+/* ===== Resumen Retardos (para presentar) ===== */
+var RSF="Todos";
+function dn(a,r){var C=2*Math.PI*50,p=(a+r)?a/(a+r):0;return'<svg viewBox="0 0 140 140" width="140" role="img" aria-label="puntualidad"><circle cx="70" cy="70" r="50" fill="none" stroke="#dc2626" stroke-width="18"/><circle cx="70" cy="70" r="50" fill="none" stroke="#16a34a" stroke-width="18" stroke-dasharray="'+(C*p)+' '+C+'" transform="rotate(-90 70 70)"/><text x="70" y="77" text-anchor="middle" font-size="24" font-weight="700" style="fill:var(--tx)">'+Math.round(100*p)+'%</text></svg>'}
+function rs(){var d=RTD,box=$("rsc");if(!d||!d.R.length){box.innerHTML='<div class="card" style="margin-top:12px">Sin datos de retardos todavía. Revisa el link de la pestaña en LINKS.retardo.</div>';return}
+ var R=d.R,D=d.D,tt=function(L,k){return L.reduce(function(s,x){return s+x[k]},0)},TA=tt(R,"a"),TR=tt(R,"r"),TT=TA+TR,TC={Vespertino:"#d97706",Matutino:"#4f46e5","Sin turno":"#94a3b8"},tk=["Vespertino","Matutino"].filter(function(t){return R.some(function(x){return x.t==t})}),
+ by=function(t){var g=R.filter(function(x){return x.t==t});return{a:tt(g,"a"),r:tt(g,"r"),n:g.length,c:g.filter(function(x){return x.r>0}).length}},big=function(v,l,c){return'<div style="text-align:center"><div style="font-size:34px;font-weight:800;line-height:1.1;color:'+c+'">'+v+'</div><div class="kl">'+l+'</div></div>'};
+ var per=D.length?"del "+D[0].f+" al "+D[D.length-1].f:"";
+ var h='<div class="card" style="margin-top:12px;text-align:center"><div class="kl">Puntualidad Educación Continua '+per+'</div><div style="font-size:44px;font-weight:800;color:'+(100*TA/TT>=95?"var(--ok)":"var(--wa)")+'">'+p1(100*TA/TT)+'</div><div style="display:flex;justify-content:center;gap:40px;margin-top:6px;flex-wrap:wrap">'+big(TA,"A TIEMPO","var(--ok)")+big(TR,"RETARDOS","var(--ba)")+big(TT,"REGISTROS","var(--tx)")+'</div></div>';
+ h+='<div class="g2">'+tk.map(function(t){var b=by(t);return'<div class="card" style="border-top:6px solid '+TC[t]+'"><h2 style="margin:0">Turno '+t.toLowerCase()+'</h2><div class="sub">'+SUPT[t]+'</div><div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-top:8px">'+dn(b.a,b.r)+'<div style="display:flex;gap:22px;flex-wrap:wrap">'+big(b.a,"A tiempo","var(--ok)")+big(b.r,"Retardos","var(--ba)")+big(b.c+" de "+b.n,"Agentes con retardo","var(--tx)")+'</div></div></div>'}).join("")+'</div>';
+ h+='<div class="card" style="margin-top:12px"><h2>A tiempo vs retardos por turno</h2>'+tk.map(function(t){var b=by(t),m=b.a+b.r;return'<div style="margin:10px 0"><div style="display:flex;justify-content:space-between;font-size:13px"><b>'+t+' · '+SUPT[t]+'</b><span>'+b.a+' a tiempo · '+b.r+' retardos</span></div><div style="display:flex;height:26px;border-radius:6px;overflow:hidden;color:#fff;font-size:12px"><span style="width:'+(100*b.a/m)+'%;background:#16a34a;display:flex;align-items:center;justify-content:center">'+p1(100*b.a/m)+'</span>'+(b.r?'<span style="width:'+(100*b.r/m)+'%;background:#dc2626;display:flex;align-items:center;justify-content:center">'+p1(100*b.r/m)+'</span>':'')+'</div></div>'}).join("")+'</div>';
+ if(D.length){var n=D.length,gw=700/n,mx=Math.max.apply(null,D.map(function(x){return x.r}))||1,sv='<svg viewBox="0 0 780 250" width="100%" style="min-width:520px" role="img"><line x1="40" x2="750" y1="190" y2="190" style="stroke:var(--ln)"/>';
+  D.forEach(function(x,i){var cx=40+i*gw+gw/2,hh=x.r/mx*150,w=Math.min(46,gw*0.7);sv+='<rect x="'+(cx-w/2)+'" y="'+(190-hh)+'" width="'+w+'" height="'+hh+'" rx="3" fill="#dc2626"/><text x="'+cx+'" y="'+(184-hh)+'" font-size="13" font-weight="700" text-anchor="middle" style="fill:var(--tx)">'+x.r+'</text><text x="'+cx+'" y="208" font-size="12" text-anchor="middle" style="fill:var(--tx)">'+x.f+'</text><text x="'+cx+'" y="224" font-size="10" text-anchor="middle" style="fill:var(--mu)">'+(x.a+x.r?Math.round(100*x.a/(x.a+x.r))+"% punt.":"")+'</text>'});
+  h+='<div class="card" style="margin-top:12px"><h2>Retardos por día</h2><div class="tw">'+sv+'</svg></div></div>'}
+ h+=seg(["Todos","Matutino","Vespertino"],RSF,"s");
+ var S=R.filter(function(x){return RSF=="Todos"||x.t==RSF});
+ h+='<div class="card"><h2>Tabla dinámica: ¿quiénes tienen retardos?</h2><div class="tw"><table><tr><th>Turno</th><th>Agente</th><th>A tiempo</th><th>Retardos</th><th>Total</th><th>% puntualidad</th></tr>';
+ ["Vespertino","Matutino","Sin turno"].forEach(function(t){var g=S.filter(function(x){return x.t==t});if(!g.length)return;var w=g.filter(function(x){return x.r>0}).sort(function(a,b){return b.r-a.r||a.n.localeCompare(b.n)}),z=g.length-w.length;
+  w.forEach(function(x){h+='<tr><td>'+t+'</td><td>'+x.n+'</td><td>'+x.a+'</td><td style="background:rgba(220,38,38,'+(x.r>1?0.55:0.25)+');font-weight:700">'+x.r+'</td><td>'+x.c+'</td><td>'+p1(100*x.a/x.c)+'</td></tr>'});
+  if(z)h+='<tr><td>'+t+'</td><td colspan="5" class="sub">'+z+' agentes sin retardos (100% de puntualidad)</td></tr>';
+  var a=tt(g,"a"),r=tt(g,"r");h+='<tr style="font-weight:700"><td colspan="2">Subtotal '+t+(SUPT[t]?" · "+SUPT[t]:"")+'</td><td>'+a+'</td><td>'+r+'</td><td>'+(a+r)+'</td><td>'+p1(100*a/(a+r))+'</td></tr>'});
+ var sa=tt(S,"a"),sr=tt(S,"r");h+='<tr style="font-weight:700"><td colspan="2">Total</td><td>'+sa+'</td><td>'+sr+'</td><td>'+(sa+sr)+'</td><td>'+p1(100*sa/(sa+sr))+'</td></tr></table></div></div>';
+ var cr=R.filter(function(x){return x.r>0}).sort(function(a,b){return b.r-a.r}),re=cr.filter(function(x){return x.r>1}),pk=D.slice().sort(function(a,b){return b.r-a.r})[0],L=['<b>'+TR+'</b> retardos de '+TT+' registros: <b>'+p1(100*TA/TT)+'</b> de puntualidad.'];
+ tk.forEach(function(t){var b=by(t);L.push('<b>'+t+'</b> ('+SUPT[t]+'): '+b.r+' retardos, '+p1(100*b.a/(b.a+b.r))+' de puntualidad ('+pct(b.r,TR)+'% de los retardos).')});
+ if(pk&&pk.r)L.push('Día con más retardos: <b>'+pk.f+'</b> ('+pk.r+').');
+ L.push(re.length?'<b>'+re.length+'</b> agentes reincidentes (2 o más): '+re.map(function(x){return x.n+" ("+x.r+")"}).join(", ")+'.':'Nadie con más de un retardo.');
+ h+='<div class="card" style="margin-top:12px"><h2>🔎 Mensajes clave</h2><ul><li>'+L.join('</li><li>')+'</li></ul></div>';
+ box.innerHTML=h;$("rss").textContent="Datos del Sheet · "+R.length+" agentes"+(D.length?" · "+per:"")}
+$("rsc").onclick=function(e){var f=e.target.dataset.s;if(f){RSF=f;rs()}};
 
 /* ===== Conexión en vivo con Google Sheets - (no necesitas tocar esto) ===== */
 function gurl(l){l=(l||"").trim();if(!l)return"";
