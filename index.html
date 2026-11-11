@@ -261,20 +261,20 @@ $("prc").onclick=function(e){var f=e.target.dataset.f;if(f){PRF=f;rp()}};
 var SUPT={Vespertino:"Mayra Juárez",Matutino:"Janette Rico"};
 function turnoOf(s){s=s||"";return/juarez zaragoza|mayra dilery/i.test(s)?"Vespertino":/rico rodiles|janette/i.test(s)?"Matutino":""}
 
-// ======== NUEVA FUNCIÓN OPTIMIZADA PARA LEER LOS DATOS CRUDOS ========
 function loadRt(a) {
     var hi = -1;
-    // 1. Busca dinámicamente la fila donde están los encabezados (debe tener FECHA y NOMBRE)
-    a.forEach(function(r, i) {
+    // Buscar la fila de encabezados en las primeras 10 filas (por si hay filas en blanco arriba)
+    a.slice(0, 10).forEach(function(r, i) {
         var textoFila = r.join(" ").toUpperCase();
-        if (hi < 0 && textoFila.indexOf("FECHA") > -1 && textoFila.indexOf("NOMBRE") > -1) {
+        if (hi < 0 && textoFila.indexOf("NOMBRE") > -1 && (textoFila.indexOf("FECH") > -1 || textoFila.indexOf("RETARDO") > -1)) {
             hi = i;
         }
     });
     
-    // Si no encuentra los datos crudos, avisa claramente el error
+    // Si no encuentra los encabezados, IMPRIME lo que leyó para que podamos depurarlo
     if (hi < 0) { 
-        var err = '<div class="card" style="margin-top:12px;color:var(--ba);font-weight:bold;">Error: El Dashboard está intentando leer la tabla dinámica. Por favor, asegúrate de poner en LINKS.retardo el enlace de la pestaña cruda (la que tiene FECHA, NOMBRE, LOGUEO, etc).</div>';
+        var preview = a.slice(0, 2).map(function(r){ return r.join(" | ") }).join("<br>");
+        var err = '<div class="card" style="margin-top:12px;color:var(--ba);font-weight:bold;">Error de lectura de columnas.<br><br><span style="color:#666;font-weight:normal;font-size:13px">Esto es exactamente lo que el Dashboard está leyendo de ese enlace (Fila 1 y 2):<br><br><b>' + preview + '</b><br><br>Verifica si estos datos pertenecen a tu hoja de Retardos cruda. Si no, busca la pestaña correcta y cambia el GID.</span></div>';
         $("rtc").innerHTML = err;
         $("rsc").innerHTML = err;
         RTD = null; return; 
@@ -282,36 +282,43 @@ function loadRt(a) {
 
     var h = a[hi].map(function(x) { return (x || "").trim().toUpperCase() });
     
-    // 2. Encuentra las columnas correctas sin importar si hay catálogos sueltos a la derecha
-    var fc = h.indexOf("FECHA");
+    var fc = h.findIndex(function(x) { return x.indexOf("FECH") > -1; });
     var nc = h.indexOf("NOMBRE");
-    var sc = h.indexOf("SUPERVISOR");
-    if(sc === -1) sc = h.findIndex(function(x) { return x.indexOf("SUPERVISOR") > -1; });
-    var rc = h.indexOf("RETARDO");
+    var sc = h.findIndex(function(x) { return x.indexOf("SUPERVISOR") > -1; });
+    var rc = h.findIndex(function(x) { return x.indexOf("RETARDO") === 0; });
+
+    if(nc === -1) {
+        var err = '<div class="card" style="margin-top:12px;color:var(--ba);font-weight:bold;">Error: Encontré la fecha, pero falta la columna NOMBRE.</div>';
+        $("rtc").innerHTML = err; $("rsc").innerHTML = err; RTD = null; return;
+    }
 
     var M = {};
     var D_map = {};
 
+    // Procesar fila por fila
     a.slice(hi + 1).forEach(function(r) {
-        var n = nc > -1 ? (r[nc] || "").trim() : "";
+        var n = (r[nc] || "").trim();
         var sup = sc > -1 ? (r[sc] || "").trim() : "";
         var f = fc > -1 ? (r[fc] || "").trim() : "";
         var ret = rc > -1 ? (r[rc] || "").trim().toLowerCase() : "";
 
-        if (!n || !f) return;
+        if (!n) return;
         
         var t = turnoOf(sup) || "Sin turno";
         n = tcase(n);
 
         if (!M[n]) M[n] = { n: n, t: t, a: 0, r: 0, c: 0 };
 
-        // 3. Valida y formatea las fechas
-        if (/^\d{4}-\d{2}-\d{2}/.test(f) || /^\d{1,2}\/\d{1,2}/.test(f)) {
-            var f_short = f.indexOf('-') > -1 ? f.substring(5).replace('-', '/') : f.substring(0, 5); 
+        if (f) {
+            var f_short = f;
+            if (/^\d{4}-\d{2}-\d{2}/.test(f)) {
+                f_short = f.substring(5).replace('-', '/'); 
+            } else if (/^\d{1,2}\/\d{1,2}/.test(f)) {
+                f_short = f.substring(0, 5); 
+            }
             
             if (!D_map[f_short]) D_map[f_short] = { f: f_short, a: 0, r: 0 };
 
-            // 4. Cuenta automáticamente los retardos sin depender de fórmulas del Sheet
             if (ret.indexOf("a tiempo") > -1) {
                 M[n].a++;
                 M[n].c++;
@@ -330,7 +337,7 @@ function loadRt(a) {
     RTD = { R: M_arr, D: D_arr };
     rr(); rs();
 }
-// ====================================================================
+// =============================================
 
 function rr(){var d=RTD;if(!d||!d.R.length){return}
  var R=d.R,D=d.D,TC={Vespertino:"#d97706",Matutino:"#4f46e5","Sin turno":"#94a3b8"},tot=function(L,k){return L.reduce(function(s,x){return s+x[k]},0)},TA=tot(R,"a"),TR=tot(R,"r"),TT=TA+TR,tk=["Vespertino","Matutino"].filter(function(t){return R.some(function(x){return x.t==t})}),by=function(t){var g=R.filter(function(x){return x.t==t});return{a:tot(g,"a"),r:tot(g,"r"),n:g.length}};
