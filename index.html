@@ -68,14 +68,14 @@ label.ck{display:flex;gap:8px;align-items:flex-start;margin:6px 0}
 /*  «Cualquier persona con el enlace → Lector».                   */
 /* ============================================================== */
 var LINKS={
- monitoreos:"https://docs.google.com/spreadsheets/d/11QhXka1mva9GKuPwrDr1yd3dzybFIxsRLiO4NQrP-mU/edit?gid=0#gid=0",   // link de la pestaña Monitoreos
- cuartiles:"https://docs.google.com/spreadsheets/d/11QhXka1mva9GKuPwrDr1yd3dzybFIxsRLiO4NQrP-mU/edit?gid=1809066707#gid=1809066707",    // link de la pestaña Cuartiles
- avance:"https://docs.google.com/spreadsheets/d/11QhXka1mva9GKuPwrDr1yd3dzybFIxsRLiO4NQrP-mU/edit?gid=372437164#gid=372437164",   // link de la pestaña Avance diplomados
- leads:"https://docs.google.com/spreadsheets/d/11QhXka1mva9GKuPwrDr1yd3dzybFIxsRLiO4NQrP-mU/edit?gid=768130767#gid=768130767",   // link de la pestaña Leads por día
- productividad:"https://docs.google.com/spreadsheets/d/11QhXka1mva9GKuPwrDr1yd3dzybFIxsRLiO4NQrP-mU/edit?gid=280620356#gid=280620356",   // link de la pestaña Productividad
- retardo:"https://docs.google.com/spreadsheets/d/11QhXka1mva9GKuPwrDr1yd3dzybFIxsRLiO4NQrP-mU/edit?gid=963082116#gid=963082116"   // link de la pestaña Tabla Retardos
+ monitoreos:"https://docs.google.com/spreadsheets/d/11QhXka1mva9GKuPwrDr1yd3dzybFIxsRLiO4NQrP-mU/edit?gid=0#gid=0",
+ cuartiles:"https://docs.google.com/spreadsheets/d/11QhXka1mva9GKuPwrDr1yd3dzybFIxsRLiO4NQrP-mU/edit?gid=1809066707#gid=1809066707",
+ avance:"https://docs.google.com/spreadsheets/d/11QhXka1mva9GKuPwrDr1yd3dzybFIxsRLiO4NQrP-mU/edit?gid=372437164#gid=372437164",
+ leads:"https://docs.google.com/spreadsheets/d/11QhXka1mva9GKuPwrDr1yd3dzybFIxsRLiO4NQrP-mU/edit?gid=768130767#gid=768130767",
+ productividad:"https://docs.google.com/spreadsheets/d/11QhXka1mva9GKuPwrDr1yd3dzybFIxsRLiO4NQrP-mU/edit?gid=280620356#gid=280620356",
+ retardo:"https://docs.google.com/spreadsheets/d/11QhXka1mva9GKuPwrDr1yd3dzybFIxsRLiO4NQrP-mU/edit?gid=963082116#gid=963082116"
 };
-var REFRESH_SEG=60; // cada cuántos segundos se actualiza solo
+var REFRESH_SEG=60;
 /* ============================================================== */
 
 var SUP={jricoro:"Janette Rico",mjuarezzar:"Mayra Juárez"};
@@ -263,13 +263,63 @@ function rp(){var d=PRD;if(!d||!d.D.length){$("prc").innerHTML='<div class="card
 $("prc").onclick=function(e){var f=e.target.dataset.f;if(f){PRF=f;rp()}};
 var SUPT={Vespertino:"Mayra Juárez",Matutino:"Janette Rico"};
 function turnoOf(s){s=s||"";return/juarez zaragoza|mayra dilery/i.test(s)?"Vespertino":/rico rodiles|janette/i.test(s)?"Matutino":""}
-function loadRt(a){var hi=-1;a.forEach(function(r,i){if(hi<0&&r.some(function(x){return(x||"").trim().toUpperCase()=="NOMBRE"}))hi=i});
- if(hi<0){RTD=null;rr();rs();return}
- var h=a[hi].map(function(x){return(x||"").trim()}),nc=h.findIndex(function(x){return x.toUpperCase()=="NOMBRE"}),sc=h.findIndex(function(x){return/supervisor/i.test(x)}),ia=h.findIndex(function(x){return/a tiempo/i.test(x)}),ir=h.findIndex(function(x){return/^retardo/i.test(x)}),M=[],cur="",body=a.slice(hi+1),lc=-1;body.some(function(r){var k=r.findIndex(function(x){return(x||"").trim().toLowerCase()=="a tiempo"});if(k>-1){lc=k;return true}});
- body.forEach(function(r){var g=(r[sc]||"").trim(),n=(r[nc]||"").trim();if(g&&!/^(total|suma)/i.test(g))cur=turnoOf(g)||cur;if(!n)return;var A=nn(r[ia])||0,Rt=nn(r[ir])||0;M.push({n:tcase(n),t:cur||"Sin turno",a:A,r:Rt,c:A+Rt})});
- var dc=[];h.forEach(function(x,i){if(lc>-1&&i>lc&&/^\d{4}-\d{2}-\d{2}|^\d{1,2}\/\d{1,2}/.test(x))dc.push(i)});
- var rv=function(l){var f=body.filter(function(r){return(r[lc]||"").trim().toLowerCase()==l})[0];return dc.map(function(i){return f?nn(f[i])||0:0})},DA=rv("a tiempo"),DR=rv("retardo");
- RTD={R:M,D:dc.map(function(i,k){var m=h[i].match(/^(\d{4})-(\d{2})-(\d{2})/);return{f:m?m[3]+"/"+m[2]:h[i].slice(0,5),a:DA[k],r:DR[k]}})};rr();rs()}
+
+function loadRt(a) {
+    var hi = -1;
+    a.forEach(function(r, i) {
+        if (hi < 0 && r.some(function(x) { return (x || "").trim().toUpperCase() == "NOMBRE" })) hi = i;
+    });
+    if (hi < 0) { RTD = null; rr(); rs(); return; }
+
+    var h = a[hi].map(function(x) { return (x || "").trim().toUpperCase() });
+    
+    var nc = h.lastIndexOf("NOMBRE");
+    if (nc === -1) nc = h.indexOf("NOMBRE");
+    
+    var sc = -1;
+    for (var i = h.length - 1; i >= 0; i--) { if (/SUPERVISOR/i.test(h[i])) { sc = i; break; } }
+    
+    var fc = h.indexOf("FECHA");
+    var rc = h.findIndex(function(x) { return /^RETARDO/i.test(x); });
+
+    var M = {};
+    var D_map = {};
+
+    a.slice(hi + 1).forEach(function(r) {
+        var n = (r[nc] || "").trim();
+        var sup = (r[sc] || "").trim();
+        var f = (r[fc] || "").trim();
+        var ret = (r[rc] || "").trim().toLowerCase();
+
+        if (!n) return;
+        var t = turnoOf(sup) || "Sin turno";
+        n = tcase(n);
+
+        if (!M[n]) M[n] = { n: n, t: t, a: 0, r: 0, c: 0 };
+
+        if (f && /^\d{4}-\d{2}-\d{2}/.test(f)) {
+            var f_short = f.substring(5).replace('-', '/'); 
+            if (!D_map[f_short]) D_map[f_short] = { f: f_short, a: 0, r: 0 };
+
+            if (ret.indexOf("a tiempo") > -1) {
+                M[n].a++;
+                M[n].c++;
+                D_map[f_short].a++;
+            } else if (ret !== "" && ret !== "—" && ret !== "-") {
+                M[n].r++;
+                M[n].c++;
+                D_map[f_short].r++;
+            }
+        }
+    });
+
+    var M_arr = Object.keys(M).map(function(k) { return M[k] });
+    var D_arr = Object.keys(D_map).sort().map(function(k) { return D_map[k] });
+
+    RTD = { R: M_arr, D: D_arr };
+    rr(); rs();
+}
+
 function rr(){var d=RTD;if(!d||!d.R.length){$("rtc").innerHTML='<div class="card" style="margin-top:12px">No pude leer la pestaña «Tabla Retardos». Revisa el link y que el Sheet esté compartido como lector.</div>';return}
  var R=d.R,D=d.D,TC={Vespertino:"#d97706",Matutino:"#4f46e5","Sin turno":"#94a3b8"},tot=function(L,k){return L.reduce(function(s,x){return s+x[k]},0)},TA=tot(R,"a"),TR=tot(R,"r"),TT=TA+TR,tk=["Vespertino","Matutino"].filter(function(t){return R.some(function(x){return x.t==t})}),by=function(t){var g=R.filter(function(x){return x.t==t});return{a:tot(g,"a"),r:tot(g,"r"),n:g.length}};
  var cr=R.filter(function(x){return x.r>0}).sort(function(a,b){return b.r-a.r}),re=cr.filter(function(x){return x.r>1});
