@@ -63,9 +63,6 @@ label.ck{display:flex;gap:8px;align-items:flex-start;margin:6px 0}
 <script>
 /* ============================================================== */
 /*  CONFIGURACIÓN: pega aquí los links de tus Google Sheets       */
-/*  (entre las comillas). Copia la URL estando dentro de cada     */
-/*  pestaña. El Sheet debe estar compartido como                  */
-/*  «Cualquier persona con el enlace → Lector».                   */
 /* ============================================================== */
 var LINKS={
  monitoreos:"https://docs.google.com/spreadsheets/d/11QhXka1mva9GKuPwrDr1yd3dzybFIxsRLiO4NQrP-mU/edit?gid=0#gid=0",
@@ -73,7 +70,7 @@ var LINKS={
  avance:"https://docs.google.com/spreadsheets/d/11QhXka1mva9GKuPwrDr1yd3dzybFIxsRLiO4NQrP-mU/edit?gid=372437164#gid=372437164",
  leads:"https://docs.google.com/spreadsheets/d/11QhXka1mva9GKuPwrDr1yd3dzybFIxsRLiO4NQrP-mU/edit?gid=768130767#gid=768130767",
  productividad:"https://docs.google.com/spreadsheets/d/11QhXka1mva9GKuPwrDr1yd3dzybFIxsRLiO4NQrP-mU/edit?gid=280620356#gid=280620356",
- retardo:"https://docs.google.com/spreadsheets/d/11QhXka1mva9GKuPwrDr1yd3dzybFIxsRLiO4NQrP-mU/edit?gid=963082116#gid=963082116"
+ retardo:"https://docs.google.com/spreadsheets/d/11QhXka1mva9GKuPwrDr1yd3dzybFIxsRLiO4NQrP-mU/edit?gid=123386449#gid=123386449" // <-- ASEGÚRATE QUE SEA EL LINK DE DATOS CRUDOS
 };
 var REFRESH_SEG=60;
 /* ============================================================== */
@@ -264,33 +261,43 @@ $("prc").onclick=function(e){var f=e.target.dataset.f;if(f){PRF=f;rp()}};
 var SUPT={Vespertino:"Mayra Juárez",Matutino:"Janette Rico"};
 function turnoOf(s){s=s||"";return/juarez zaragoza|mayra dilery/i.test(s)?"Vespertino":/rico rodiles|janette/i.test(s)?"Matutino":""}
 
+// ======== NUEVA FUNCIÓN OPTIMIZADA PARA LEER LOS DATOS CRUDOS ========
 function loadRt(a) {
     var hi = -1;
-    // Buscamos la fila que contiene el encabezado FECHA
+    // 1. Busca dinámicamente la fila donde están los encabezados (debe tener FECHA y NOMBRE)
     a.forEach(function(r, i) {
-        if (hi < 0 && r.some(function(x) { return (x || "").trim().toUpperCase() === "FECHA" })) hi = i;
+        var textoFila = r.join(" ").toUpperCase();
+        if (hi < 0 && textoFila.indexOf("FECHA") > -1 && textoFila.indexOf("NOMBRE") > -1) {
+            hi = i;
+        }
     });
     
-    if (hi < 0) { RTD = null; rr(); rs(); return; }
+    // Si no encuentra los datos crudos, avisa claramente el error
+    if (hi < 0) { 
+        var err = '<div class="card" style="margin-top:12px;color:var(--ba);font-weight:bold;">Error: El Dashboard está intentando leer la tabla dinámica. Por favor, asegúrate de poner en LINKS.retardo el enlace de la pestaña cruda (la que tiene FECHA, NOMBRE, LOGUEO, etc).</div>';
+        $("rtc").innerHTML = err;
+        $("rsc").innerHTML = err;
+        RTD = null; return; 
+    }
 
     var h = a[hi].map(function(x) { return (x || "").trim().toUpperCase() });
     
-    // Forzamos a usar la PRIMERA columna que coincida, ignorando el catálogo de la derecha
+    // 2. Encuentra las columnas correctas sin importar si hay catálogos sueltos a la derecha
+    var fc = h.indexOf("FECHA");
     var nc = h.indexOf("NOMBRE");
     var sc = h.indexOf("SUPERVISOR");
-    var fc = h.indexOf("FECHA");
+    if(sc === -1) sc = h.findIndex(function(x) { return x.indexOf("SUPERVISOR") > -1; });
     var rc = h.indexOf("RETARDO");
 
     var M = {};
     var D_map = {};
 
     a.slice(hi + 1).forEach(function(r) {
-        var n = (r[nc] || "").trim();
-        var sup = (r[sc] || "").trim();
-        var f = (r[fc] || "").trim();
-        var ret = (r[rc] || "").trim().toLowerCase();
+        var n = nc > -1 ? (r[nc] || "").trim() : "";
+        var sup = sc > -1 ? (r[sc] || "").trim() : "";
+        var f = fc > -1 ? (r[fc] || "").trim() : "";
+        var ret = rc > -1 ? (r[rc] || "").trim().toLowerCase() : "";
 
-        // Si la fila no tiene nombre o fecha, la ignoramos
         if (!n || !f) return;
         
         var t = turnoOf(sup) || "Sin turno";
@@ -298,22 +305,18 @@ function loadRt(a) {
 
         if (!M[n]) M[n] = { n: n, t: t, a: 0, r: 0, c: 0 };
 
-        // Solo procesamos celdas que parezcan fechas
+        // 3. Valida y formatea las fechas
         if (/^\d{4}-\d{2}-\d{2}/.test(f) || /^\d{1,2}\/\d{1,2}/.test(f)) {
-            var f_short;
-            if (f.indexOf('-') > -1) {
-                f_short = f.substring(5).replace('-', '/'); // Convierte "2026-11-02" a "11/02"
-            } else {
-                f_short = f.substring(0, 5); // Convierte "02/11/2026" a "02/11"
-            }
+            var f_short = f.indexOf('-') > -1 ? f.substring(5).replace('-', '/') : f.substring(0, 5); 
             
             if (!D_map[f_short]) D_map[f_short] = { f: f_short, a: 0, r: 0 };
 
+            // 4. Cuenta automáticamente los retardos sin depender de fórmulas del Sheet
             if (ret.indexOf("a tiempo") > -1) {
                 M[n].a++;
                 M[n].c++;
                 D_map[f_short].a++;
-            } else if (ret !== "" && ret !== "—" && ret !== "-") {
+            } else if (ret !== "" && ret !== "—" && ret !== "-" && ret !== "n/a") {
                 M[n].r++;
                 M[n].c++;
                 D_map[f_short].r++;
@@ -327,8 +330,9 @@ function loadRt(a) {
     RTD = { R: M_arr, D: D_arr };
     rr(); rs();
 }
- 
-function rr(){var d=RTD;if(!d||!d.R.length){$("rtc").innerHTML='<div class="card" style="margin-top:12px">No pude leer la pestaña «Tabla Retardos». Revisa el link y que el Sheet esté compartido como lector.</div>';return}
+// ====================================================================
+
+function rr(){var d=RTD;if(!d||!d.R.length){return}
  var R=d.R,D=d.D,TC={Vespertino:"#d97706",Matutino:"#4f46e5","Sin turno":"#94a3b8"},tot=function(L,k){return L.reduce(function(s,x){return s+x[k]},0)},TA=tot(R,"a"),TR=tot(R,"r"),TT=TA+TR,tk=["Vespertino","Matutino"].filter(function(t){return R.some(function(x){return x.t==t})}),by=function(t){var g=R.filter(function(x){return x.t==t});return{a:tot(g,"a"),r:tot(g,"r"),n:g.length}};
  var cr=R.filter(function(x){return x.r>0}).sort(function(a,b){return b.r-a.r}),re=cr.filter(function(x){return x.r>1});
  var h='<div class="grid" style="margin-top:12px">'+kc(TR,"Retardos totales","var(--ba)")+kc(p1(100*TA/TT),"% puntualidad")+tk.map(function(t){return kc(by(t).r,"Retardos · "+t+" ("+SUPT[t]+")",TC[t])}).join("")+kc(cr.length+" de "+R.length,"Agentes con retardo")+kc(re.length,"Reincidentes (2 o más)")+'</div>';
@@ -349,14 +353,11 @@ function rr(){var d=RTD;if(!d||!d.R.length){$("rtc").innerHTML='<div class="card
  if(cr.length)L.push(cr.length+' agentes con retardo: '+cr.map(function(x){return x.n+(x.r>1?" ("+x.r+")":"")}).join(", ")+'.');
  L.push(re.length?'Reincidentes: <b>'+re.map(function(x){return x.n}).join(", ")+'</b>: conversación 1:1 y seguimiento semanal por su supervisora.':'No hay agentes con más de un retardo.');
  h+='<div class="card" style="margin-top:12px"><h2>🔎 Resumen para presentar</h2><ul><li>'+L.join('</li><li>')+'</li></ul></div>';
- $("rtc").innerHTML=h;$("rts").textContent="Datos del Sheet «Tabla Retardos» · "+R.length+" agentes · "+D.length+" días"}
+ $("rtc").innerHTML=h;$("rts").textContent="Datos de la pestaña cruda · "+R.length+" agentes · "+D.length+" días"}
 $("rtc").onclick=function(e){var f=e.target.dataset.r;if(f){RTF=f;rr()}};
 
-
-/* ===== Resumen Retardos (para presentar) ===== */
-var RSF="Todos";
 function dn(a,r){var C=2*Math.PI*50,p=(a+r)?a/(a+r):0;return'<svg viewBox="0 0 140 140" width="140" role="img" aria-label="puntualidad"><circle cx="70" cy="70" r="50" fill="none" stroke="#dc2626" stroke-width="18"/><circle cx="70" cy="70" r="50" fill="none" stroke="#16a34a" stroke-width="18" stroke-dasharray="'+(C*p)+' '+C+'" transform="rotate(-90 70 70)"/><text x="70" y="77" text-anchor="middle" font-size="24" font-weight="700" style="fill:var(--tx)">'+Math.round(100*p)+'%</text></svg>'}
-function rs(){var d=RTD,box=$("rsc");if(!d||!d.R.length){box.innerHTML='<div class="card" style="margin-top:12px">Sin datos de retardos todavía. Revisa el link de la pestaña en LINKS.retardo.</div>';return}
+function rs(){var d=RTD,box=$("rsc");if(!d||!d.R.length){return}
  var R=d.R,D=d.D,tt=function(L,k){return L.reduce(function(s,x){return s+x[k]},0)},TA=tt(R,"a"),TR=tt(R,"r"),TT=TA+TR,TC={Vespertino:"#d97706",Matutino:"#4f46e5","Sin turno":"#94a3b8"},tk=["Vespertino","Matutino"].filter(function(t){return R.some(function(x){return x.t==t})}),
  by=function(t){var g=R.filter(function(x){return x.t==t});return{a:tt(g,"a"),r:tt(g,"r"),n:g.length,c:g.filter(function(x){return x.r>0}).length}},big=function(v,l,c){return'<div style="text-align:center"><div style="font-size:34px;font-weight:800;line-height:1.1;color:'+c+'">'+v+'</div><div class="kl">'+l+'</div></div>'};
  var per=D.length?"del "+D[0].f+" al "+D[D.length-1].f:"";
@@ -379,7 +380,7 @@ function rs(){var d=RTD,box=$("rsc");if(!d||!d.R.length){box.innerHTML='<div cla
  if(pk&&pk.r)L.push('Día con más retardos: <b>'+pk.f+'</b> ('+pk.r+').');
  L.push(re.length?'<b>'+re.length+'</b> agentes reincidentes (2 o más): '+re.map(function(x){return x.n+" ("+x.r+")"}).join(", ")+'.':'Nadie con más de un retardo.');
  h+='<div class="card" style="margin-top:12px"><h2>🔎 Mensajes clave</h2><ul><li>'+L.join('</li><li>')+'</li></ul></div>';
- box.innerHTML=h;$("rss").textContent="Datos del Sheet · "+R.length+" agentes"+(D.length?" · "+per:"")}
+ box.innerHTML=h;$("rss").textContent="Datos de la pestaña cruda · "+R.length+" agentes"+(D.length?" · "+per:"")}
 $("rsc").onclick=function(e){var f=e.target.dataset.s;if(f){RSF=f;rs()}};
 
 /* ===== Conexión en vivo con Google Sheets - (no necesitas tocar esto) ===== */
