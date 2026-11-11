@@ -30,7 +30,7 @@ label.ck{display:flex;gap:8px;align-items:flex-start;margin:6px 0}
 </style></head><body><main>
 <h1>📊 Dashboard Diplomados</h1>
 <div class="sub" id="st">Fuente: Google Sheet «Educación Continua»</div>
-<nav id="nav"><button data-t="mon" class="on">Monitoreo</button><button data-t="cua">Cuartiles</button><button data-t="cro">Cronograma</button><button data-t="av">Avance diplomados</button><button data-t="le">Leads por día</button><button data-t="pr">Productividad</button><button data-t="rt">Retardo</button></nav>
+<nav id="nav"><button data-t="mon" class="on">Monitoreo</button><button data-t="cua">Cuartiles</button><button data-t="cro">Cronograma</button><button data-t="av">Avance diplomados</button><button data-t="le">Leads por día</button><button data-t="pr">Productividad</button><button data-t="rt">Retardos</button></nav>
 
 <section id="mon">
 <div class="card" style="margin-bottom:12px"><h3>Datos en vivo</h3>
@@ -56,7 +56,7 @@ label.ck{display:flex;gap:8px;align-items:flex-start;margin:6px 0}
 <section id="av" class="hide"><div class="card"><h2>Avance diplomados</h2><div class="sub" id="avs"></div><div class="sub">Se actualiza solo desde el Sheet.</div></div><div id="avc"></div></section>
 <section id="le" class="hide"><div class="card"><h2>Leads por día</h2><div class="sub" id="les"></div><div class="sub">Se actualiza solo desde el Sheet.</div></div><div id="lec"></div></section>
 <section id="pr" class="hide"><div class="card"><h2>Productividad</h2><div class="sub" id="prs">Se actualiza solo desde el Sheet.</div></div><div id="prc"></div></section>
-<section id="rt" class="hide"><div class="card"><h2>Retardo</h2><div class="sub" id="rts">Se actualiza solo desde el Sheet.</div></div><div id="rtc"><div class="card" style="margin-top:12px">Cargando…</div></div></section>
+<section id="rt" class="hide"><div class="card"><h2>Retardos</h2><div class="sub" id="rts">Se actualiza solo desde el Sheet.</div></div><div id="rtc"><div class="card" style="margin-top:12px">Cargando…</div></div></section>
 <div class="sub" style="margin:14px 0">Solo lectura: este tablero no modifica el Sheet.</div>
 </main>
 <script>
@@ -72,7 +72,7 @@ var LINKS={
  avance:"https://docs.google.com/spreadsheets/d/11QhXka1mva9GKuPwrDr1yd3dzybFIxsRLiO4NQrP-mU/edit?gid=372437164#gid=372437164",   // link de la pestaña Avance diplomados
  leads:"https://docs.google.com/spreadsheets/d/11QhXka1mva9GKuPwrDr1yd3dzybFIxsRLiO4NQrP-mU/edit?gid=768130767#gid=768130767",   // link de la pestaña Leads por día
  productividad:"https://docs.google.com/spreadsheets/d/11QhXka1mva9GKuPwrDr1yd3dzybFIxsRLiO4NQrP-mU/edit?gid=280620356#gid=280620356",   // link de la pestaña Productividad
- retardo:"https://docs.google.com/spreadsheets/d/11QhXka1mva9GKuPwrDr1yd3dzybFIxsRLiO4NQrP-mU/edit?gid=963082116#gid=963082116"   // link de la pestaña Tabla de Retardos
+ retardo:"https://docs.google.com/spreadsheets/d/11QhXka1mva9GKuPwrDr1yd3dzybFIxsRLiO4NQrP-mU/edit?gid=963082116#gid=963082116"   // link de la pestaña Tabla Retardos
 };
 var REFRESH_SEG=60; // cada cuántos segundos se actualiza solo
 /* ============================================================== */
@@ -204,9 +204,10 @@ function mlab(k){var q=k.split("-");return MES[+q[1]-1]+" "+q[0]}
 function mk(rows){var R=rows.map(norm),n=R.length,f=function(fn){return R.filter(fn).length},cA=R.filter(function(x){return x.cos!="No aplica"&&x.cos!="Sin dato"}),aA=R.filter(function(x){return x.aul!="No aplicó"});
  return[n,f(function(x){return x.res=="Venta"}),pct(cA.filter(function(x){return x.cos=="Ambas, claras"}).length,cA.length),pct(aA.filter(function(x){return x.aul=="Ofertó"}).length,aA.length),pct(f(function(x){return x.ref=="Solicitó referidos"}),n),pct(f(function(x){return x.are=="Sin áreas relevantes"}),n),pct(f(function(x){return x.res=="Seguimiento agendado"}),n)]}
 function monShow(){var R=MONR||[],ks=[];R.forEach(function(r){var k=mkey(r[0]);if(k&&ks.indexOf(k)<0)ks.push(k)});ks.sort();if(MONF!="Todos"&&ks.indexOf(MONF)<0)MONF="Todos";
+ var cm2="",nk=ks.length;if(nk>1){var v0=mk(R.filter(function(r){return mkey(r[0])==ks[nk-2]})),v1=mk(R.filter(function(r){return mkey(r[0])==ks[nk-1]})),dl=function(a,b){return a+"% → "+b+"% ("+(b-a>=0?"+":"")+(b-a)+" pp)"};cm2='<h3 style="margin-top:10px">Comparativo '+mlab(ks[nk-1])+' vs '+mlab(ks[nk-2])+'</h3><ul><li>Monitoreos: '+v0[0]+' → '+v1[0]+'; ventas: '+v0[1]+' → '+v1[1]+'.</li><li>Costos claros: '+dl(v0[2],v1[2])+'.</li><li>Aula con docente: '+dl(v0[3],v1[3])+'.</li><li>Solicitud de referidos: '+dl(v0[4],v1[4])+'.</li><li>Sin áreas de oportunidad: '+dl(v0[5],v1[5])+'.</li></ul>'}
  var b=function(k,l){return'<button class="btn" data-m="'+k+'"'+(k==MONF?' style="background:var(--ac);color:#fff;border-color:var(--ac)"':'')+'>'+l+'</button>'};
  var t='<table><tr><th>Mes</th><th>Monitoreos</th><th>Ventas</th><th>% seguimiento</th><th>% costos claros</th><th>% aula</th><th>% referidos</th><th>% sin áreas</th></tr>'+ks.map(function(k){var v=mk(R.filter(function(r){return mkey(r[0])==k}));return'<tr><td>'+mlab(k)+'</td><td>'+v[0]+'</td><td>'+v[1]+'</td><td>'+v[6]+'%</td><td>'+v[2]+'%</td><td>'+v[3]+'%</td><td>'+v[4]+'%</td><td>'+v[5]+'%</td></tr>'}).join("")+'</table>';
- $("mof").innerHTML=ks.length?'<div class="card" style="margin-bottom:12px"><h3>Filtrar por mes</h3><div style="display:flex;gap:6px;flex-wrap:wrap;margin:8px 0">'+b("Todos","Todos")+ks.map(function(k){return b(k,mlab(k))}).join("")+'</div><div class="tw">'+t+'</div></div>':"";
+ $("mof").innerHTML=ks.length?'<div class="card" style="margin-bottom:12px"><h3>Filtrar por mes</h3><div style="display:flex;gap:6px;flex-wrap:wrap;margin:8px 0">'+b("Todos","Todos")+ks.map(function(k){return b(k,mlab(k))}).join("")+'</div><div class="tw">'+t+'</div>'+cm2+'</div>':"";
  render(MONF=="Todos"?R:R.filter(function(r){return mkey(r[0])==MONF}));if(MONF!="Todos")$("st").textContent+=" · filtro: "+mlab(MONF)}
 $("mof").onclick=function(e){var m=e.target.dataset.m;if(m){MONF=m;monShow()}};
 
@@ -237,9 +238,10 @@ function rp(){var d=PRD;if(!d||!d.D.length){$("prc").innerHTML='<div class="card
  var T=d.T||{pr:0,ef:0,an:0,ab:0,as:0},D=d.D,C=d.C,G=d.G,col={"Foco rojo":"var(--ba)","Atención":"var(--wa)","Bien":"#65a30d","Destacado":"var(--ok)","Muestra corta":"#94a3b8"},
  st=function(g){return g.hl<10?"Muestra corta":g.pp<PR_ROJO?"Foco rojo":g.pp<PR_BIEN?"Atención":g.pp<PR_TOP?"Bien":"Destacado"},
  act=function(g){if(g.hl<10)return"Pocas horas: observar otra semana";var a=[];if(g.pp<PR_ROJO)a.push("Plan de mejora, 1:1 y escucha de llamadas");else if(g.pp<PR_BIEN)a.push("Coaching semanal en tiempo productivo");else if(g.pp<PR_TOP)a.push("Mantener y subir a "+PR_TOP+"%");else a.push("Mentor y buenas prácticas");if(g.as>20)a.push("revisar ausentismo");return a.join(" + ")};
- var h='<div class="grid" style="margin-top:12px">'+kc(p1(T.pr),"% Productividad del mes",T.pr<PR_META?"var(--ba)":"var(--ok)")+kc(p1(T.ef),"% Efectividad")+kc(p1(T.an),"% Adherencia neta")+kc(p1(T.ab),"% Adherencia bruta")+kc(p1(T.as),"% Absentismo")+kc((PR_META-T.pr).toFixed(1)+" pp","Brecha vs meta "+PR_META+"%","var(--ba)")+'</div>';
+ if(PRF!="Todos"){var gg=G.filter(function(g){return g.t==PRF}),a1=0,b1=0,c1=0,e1=0;gg.forEach(function(g){a1+=g.hc;b1+=g.hl;c1+=g.hp;e1+=g.he});if(b1)T={pr:100*c1/b1,ef:e1?100*c1/e1:0,an:100*e1/b1,ab:100*b1/a1,as:100*(1-b1/a1)}}
+ var h=seg(["Todos","Matutino","Vespertino"],PRF,"f")+'<div class="grid" style="margin-top:12px">'+kc(p1(T.pr),"% Productividad del mes"+(PRF!="Todos"?" · "+PRF:""),T.pr<PR_META?"var(--ba)":"var(--ok)")+kc(p1(T.ef),"% Efectividad")+kc(p1(T.an),"% Adherencia neta")+kc(p1(T.ab),"% Adherencia bruta")+kc(p1(T.as),"% Absentismo")+kc((PR_META-T.pr).toFixed(1)+" pp","Brecha vs meta "+PR_META+"%","var(--ba)")+'</div>';
  h+='<div class="card" style="margin-top:12px"><h2>Avance del mes por día</h2><div class="tw">'+lines(D,[["pr","% Productividad","#4f46e5",1],["ef","% Efectividad","#16a34a",0],["an","% Adherencia neta","#d97706",0]])+'</div></div>';
- var cm=["Matutino","Vespertino"].filter(function(k){return C[k]&&C[k].p&&C[k].h}).map(function(k){return[k,C[k].p[0],C[k].p[1],C[k].h[0],C[k].h[1]]});
+ var cm=["Matutino","Vespertino"].filter(function(k){return C[k]&&C[k].p&&C[k].h&&(PRF=="Todos"||PRF==k)}).map(function(k){return[k,C[k].p[0],C[k].p[1],C[k].h[0],C[k].h[1]]});
  if(cm.length)h+='<div class="g2">'+ch(cm,"% horas productivas: octubre vs noviembre (1 al 8)",1,2,"Octubre","Noviembre",function(r){return sg(r[2]-r[1])+" pp"})+ch(cm,"Horas productivas: octubre vs noviembre (1 al 8)",3,4,"Octubre","Noviembre",function(r){return sg(100*(r[4]-r[3])/r[3])+"%"})+'</div>';
  var E=G.filter(function(g){return g.hl>=10}),rj=E.filter(function(g){return g.pp<PR_ROJO}).sort(function(a,b){return a.pp-b.pp}),tp=E.slice().sort(function(a,b){return b.pp-a.pp}),au=G.filter(function(g){return g.as>20}).sort(function(a,b){return b.as-a.as}),dd=D.filter(function(x){return x.pr!=null}),bd=dd.slice().sort(function(a,b){return b.pr-a.pr})[0],wd=dd.slice().sort(function(a,b){return a.pr-b.pr})[0],nm=function(a,k){return a.slice(0,k).map(function(g){return g.n+" ("+Math.round(g.pp)+"%)"}).join(", ")};
  var L=['La productividad del mes va en <b>'+p1(T.pr)+'</b>, '+(PR_META-T.pr).toFixed(1)+' pp debajo de la meta de '+PR_META+'%; efectividad '+p1(T.ef)+' y adherencia neta '+p1(T.an)+'.'];
@@ -251,7 +253,7 @@ function rp(){var d=PRD;if(!d||!d.D.length){$("prc").innerHTML='<div class="card
  if(au.length)L.push('Con absentismo mayor a 20%: '+au.slice(0,5).map(function(g){return g.n+" ("+Math.round(g.as)+"%)"}).join(", ")+'.');
  h+='<div class="card" style="margin-top:12px"><h2>🔎 Hallazgos</h2><ul><li>'+L.join('</li><li>')+'</li></ul></div>';
  var S=G.filter(function(g){return PRF=="Todos"||g.t==PRF}),su=function(k){return S.reduce(function(s,g){return s+g[k]},0)},hl=su("hl"),hc=su("hc"),hp=su("hp"),he=su("he"),SE=S.filter(function(g){return g.hl>=10});
- h+='<h2 style="margin:18px 0 0">Detalle por agente</h2>'+seg(["Todos","Matutino","Vespertino"],PRF,"f")+'<div class="grid">'+kc(S.length,"Agentes")+kc(p1(hl?100*hp/hl:0),"% horas productivas",(hl&&100*hp/hl<PR_ROJO)?"var(--ba)":"")+kc(p1(he?100*hp/he:0),"% efectividad")+kc(p1(hl?100*he/hl:0),"% adherencia neta")+kc(p1(hc?100*(1-hl/hc):0),"% absentismo")+kc(SE.filter(function(g){return g.pp<PR_ROJO}).length,"Focos rojos","var(--ba)")+'</div>';
+ h+='<h2 style="margin:18px 0 0">Detalle por agente · '+PRF+'</h2>'+'<div class="grid">'+kc(S.length,"Agentes")+kc(p1(hl?100*hp/hl:0),"% horas productivas",(hl&&100*hp/hl<PR_ROJO)?"var(--ba)":"")+kc(p1(he?100*hp/he:0),"% efectividad")+kc(p1(hl?100*he/hl:0),"% adherencia neta")+kc(p1(hc?100*(1-hl/hc):0),"% absentismo")+kc(SE.filter(function(g){return g.pp<PR_ROJO}).length,"Focos rojos","var(--ba)")+'</div>';
  var R=SE.slice().sort(function(a,b){return a.pp-b.pp});
  h+='<div class="g2"><div class="card"><h3 style="color:var(--ba)">🔴 Focos rojos (acciones prioritarias)</h3>'+(R.filter(function(g){return g.pp<PR_ROJO||g.as>20}).slice(0,8).map(function(g){return'<div class="row" style="grid-template-columns:1fr auto"><span>'+g.n+' <span class="sub">· '+g.t+'</span></span><b>'+Math.round(g.pp)+'% prod · '+Math.round(g.as)+'% aus.</b></div>'}).join("")||'<div class="sub">Sin focos rojos en esta selección.</div>')+'</div><div class="card"><h3 style="color:var(--ok)">🟢 Mejor productividad</h3>'+SE.slice().sort(function(a,b){return b.pp-a.pp}).slice(0,6).map(function(g){return'<div class="row" style="grid-template-columns:1fr auto"><span>'+g.n+' <span class="sub">· '+g.t+'</span></span><b>'+Math.round(g.pp)+'%</b></div>'}).join("")+'</div></div>';
  h+='<div class="card" style="margin-top:12px"><h2>Ranking de % horas productivas</h2>'+hb(S.slice().sort(function(a,b){return b.pp-a.pp}).map(function(g){return[g.n+(PRF=="Todos"?" · "+g.t.slice(0,3):""),g.pp,col[st(g)]]}),function(v){return Math.round(v)+"%"},80)+'<div class="sub">Rojo &lt; '+PR_ROJO+'% · Naranja &lt; '+PR_BIEN+'% · Verde claro &lt; '+PR_TOP+'% · Verde ≥ '+PR_TOP+'% · Gris: menos de 10 h conectadas. Meta '+PR_META+'%.</div></div>';
