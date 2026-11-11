@@ -266,21 +266,20 @@ function turnoOf(s){s=s||"";return/juarez zaragoza|mayra dilery/i.test(s)?"Vespe
 
 function loadRt(a) {
     var hi = -1;
+    // Buscamos la fila que contiene el encabezado FECHA
     a.forEach(function(r, i) {
-        if (hi < 0 && r.some(function(x) { return (x || "").trim().toUpperCase() == "NOMBRE" })) hi = i;
+        if (hi < 0 && r.some(function(x) { return (x || "").trim().toUpperCase() === "FECHA" })) hi = i;
     });
+    
     if (hi < 0) { RTD = null; rr(); rs(); return; }
 
     var h = a[hi].map(function(x) { return (x || "").trim().toUpperCase() });
     
-    var nc = h.lastIndexOf("NOMBRE");
-    if (nc === -1) nc = h.indexOf("NOMBRE");
-    
-    var sc = -1;
-    for (var i = h.length - 1; i >= 0; i--) { if (/SUPERVISOR/i.test(h[i])) { sc = i; break; } }
-    
+    // Forzamos a usar la PRIMERA columna que coincida, ignorando el catálogo de la derecha
+    var nc = h.indexOf("NOMBRE");
+    var sc = h.indexOf("SUPERVISOR");
     var fc = h.indexOf("FECHA");
-    var rc = h.findIndex(function(x) { return /^RETARDO/i.test(x); });
+    var rc = h.indexOf("RETARDO");
 
     var M = {};
     var D_map = {};
@@ -291,14 +290,23 @@ function loadRt(a) {
         var f = (r[fc] || "").trim();
         var ret = (r[rc] || "").trim().toLowerCase();
 
-        if (!n) return;
+        // Si la fila no tiene nombre o fecha, la ignoramos
+        if (!n || !f) return;
+        
         var t = turnoOf(sup) || "Sin turno";
         n = tcase(n);
 
         if (!M[n]) M[n] = { n: n, t: t, a: 0, r: 0, c: 0 };
 
-        if (f && /^\d{4}-\d{2}-\d{2}/.test(f)) {
-            var f_short = f.substring(5).replace('-', '/'); 
+        // Solo procesamos celdas que parezcan fechas
+        if (/^\d{4}-\d{2}-\d{2}/.test(f) || /^\d{1,2}\/\d{1,2}/.test(f)) {
+            var f_short;
+            if (f.indexOf('-') > -1) {
+                f_short = f.substring(5).replace('-', '/'); // Convierte "2026-11-02" a "11/02"
+            } else {
+                f_short = f.substring(0, 5); // Convierte "02/11/2026" a "02/11"
+            }
+            
             if (!D_map[f_short]) D_map[f_short] = { f: f_short, a: 0, r: 0 };
 
             if (ret.indexOf("a tiempo") > -1) {
@@ -319,7 +327,7 @@ function loadRt(a) {
     RTD = { R: M_arr, D: D_arr };
     rr(); rs();
 }
-
+ 
 function rr(){var d=RTD;if(!d||!d.R.length){$("rtc").innerHTML='<div class="card" style="margin-top:12px">No pude leer la pestaña «Tabla Retardos». Revisa el link y que el Sheet esté compartido como lector.</div>';return}
  var R=d.R,D=d.D,TC={Vespertino:"#d97706",Matutino:"#4f46e5","Sin turno":"#94a3b8"},tot=function(L,k){return L.reduce(function(s,x){return s+x[k]},0)},TA=tot(R,"a"),TR=tot(R,"r"),TT=TA+TR,tk=["Vespertino","Matutino"].filter(function(t){return R.some(function(x){return x.t==t})}),by=function(t){var g=R.filter(function(x){return x.t==t});return{a:tot(g,"a"),r:tot(g,"r"),n:g.length}};
  var cr=R.filter(function(x){return x.r>0}).sort(function(a,b){return b.r-a.r}),re=cr.filter(function(x){return x.r>1});
